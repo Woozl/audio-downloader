@@ -1,5 +1,9 @@
 FROM nikolaik/python-nodejs:latest
 
+# Install ffmpeg
+RUN apt-get update
+RUN apt-get install -y ffmpeg
+
 USER pn
 
 ADD . .
