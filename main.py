@@ -1,21 +1,52 @@
 from yt_dlp import YoutubeDL
-from flask import Flask, jsonify
+from flask import Flask, request, send_file, jsonify, Response, after_this_request
+import tempfile
+from copy import deepcopy
+from os import path
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return '''
-<h1>Hello From Index!</h1>
-<img
-    src="https://images.unsplash.com/photo-1710722960765-dcb3df7723a3?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-    width="300px"
-/>
-'''
+DEFAULT_OPTIONS = {
+    "format": "best",
+    "postprocessors": [
+        {
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+        }
+    ],
+    "outtmpl": "%(title)s.%(ext)s",
+}
 
-@app.route('/hello')
-def hello():
-    return jsonify({"hello": "world"})
 
-if __name__ == '__main__':
+@app.route("/download", methods=["GET"])
+def download():
+    url = request.args.get("url")
+    if not url:
+        return error("Please provide a `url` query param"), 400
+
+    tempdir = tempfile.TemporaryDirectory()
+    tempdir_path = tempdir.name
+
+    @after_this_request
+    def cleanup_tempdir(response):
+        tempdir.cleanup()
+        return response
+
+    options = deepcopy(DEFAULT_OPTIONS)
+    options["paths"] = {"home": tempdir_path}
+
+    with YoutubeDL(options) as downloader:
+        downloader.download(url)
+        info_dict = downloader.extract_info(url, download=False)
+        filename = downloader.prepare_filename(info_dict).replace("mp4", "mp3")
+        filepath = path.join(tempdir_path, filename)
+
+        return send_file(filepath, as_attachment=True)
+
+
+def error(message: str) -> Response:
+    return jsonify({"error": message})
+
+
+if __name__ == "__main__":
     app.run(port=3000, debug=True)
