@@ -1,10 +1,12 @@
 from yt_dlp import YoutubeDL
 from flask import Flask, request, send_file, jsonify, Response, after_this_request
+from flask_cors import CORS
 import tempfile
 from copy import deepcopy
 from os import path
 
 app = Flask(__name__)
+CORS(app, expose_headers=["Content-Disposition"])
 
 DEFAULT_OPTIONS = {
     "format": "best",
