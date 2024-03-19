@@ -15,6 +15,12 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "cd frontend && npm install",
 
+	"containerEnv": {
+		"UVICORN_HOST": "localhost",
+		"UVICORN_PORT": "3000",
+		"VITE_LOCAL_DOWNLOAD_SERVER": "http://localhost:3000"
+	},
+
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

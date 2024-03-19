@@ -1,19 +1,21 @@
 import { useState } from "react"
 
-const DOWNLOAD_API = "http://localhost:3000/download";
+// For development, the Vite devserver is a separate process/host than the download server,
+// so we set this env var in the devcontainer config. Basically this var becomes: 
+//     dev  -> http://localhost:3000/download   // fetch on separate server
+//     prod -> /download                        // fetch on same origin
+const download_server_url = `${import.meta.env.VITE_LOCAL_DOWNLOAD_SERVER ?? ''}/download`;
 
 function App() {
   const [url, setUrl] = useState("");
 
   const handleDownload: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    console.log("submit")
 
     const params = new URLSearchParams({
       url
     });
-
-    const res = await fetch(`${DOWNLOAD_API}?${params}}`);
+    const res = await fetch(`${download_server_url}?${params}}`);
     const blob = await res.blob();
 
     // pull file name out of header

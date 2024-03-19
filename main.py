@@ -1,20 +1,26 @@
 from yt_dlp import YoutubeDL
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from tempfile import TemporaryDirectory
 from copy import deepcopy
-from os import path
+from os import path, environ
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["Content-Disposition"],
-)
+
+# If we're in development, allow CORS to let Vite dev server communicate.
+# If we're in production, we don't need it as the static frontend is hosted
+# by this server and all requests are same-origin
+if environ.get("PYTHON_ENV") != "production":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["Content-Disposition"],
+    )
 
 DEFAULT_OPTIONS = {
     "format": "best",
@@ -26,7 +32,6 @@ DEFAULT_OPTIONS = {
     ],
     "outtmpl": "%(title)s.%(ext)s",
 }
-
 
 @app.get("/download")
 def download(url: str, background_tasks: BackgroundTasks):
