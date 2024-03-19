@@ -40,10 +40,9 @@ def download():
     with YoutubeDL(options) as downloader:
         downloader.download(url)
         info_dict = downloader.extract_info(url, download=False)
-        filename = downloader.prepare_filename(info_dict).replace("mp4", "mp3")
-        filepath = path.join(tempdir_path, filename)
-
-        return send_file(filepath, as_attachment=True)
+        filepath = downloader.prepare_filename(info_dict).replace("mp4", "mp3")
+        print(path.basename(filepath))
+        return send_file(filepath, as_attachment=True, download_name=path.basename(filepath))
 
 
 def error(message: str) -> Response:
