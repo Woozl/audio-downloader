@@ -49,6 +49,11 @@ def download(url: str, background_tasks: BackgroundTasks):
         )
         return response
 
+# this env var is set in the production Dockerfile, which handles building the React
+# frontend and placing the static files in the appropriate directory. For development,
+# use the separate Vite dev server for hot module reloading.
+if environ.get("PYTHON_ENV") == "production":
+    app.mount("/", StaticFiles(directory="./frontend/dist", html=True), name="static")
 
 def cleanup_tempdir(tempdir: TemporaryDirectory[str]) -> None:
     tempdir.cleanup()
