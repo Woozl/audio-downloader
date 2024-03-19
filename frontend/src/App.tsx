@@ -18,14 +18,7 @@ function App() {
 
     // pull file name out of header
     const contentDisposition = res.headers.get('Content-Disposition')
-    let filename = 'unknown_title.mp3';
-    if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(contentDisposition);
-        if (matches != null && matches[1]) { 
-          filename = matches[1].replace(/['"]/g, '');
-        }
-    }
+    let filename = contentDisposition?.replace("attachment; filename=", "") ?? "unknown_title.mp3";
 
     // create a new blob for the file and download it
     const file_url = window.URL.createObjectURL(new Blob([blob]));

@@ -5,8 +5,8 @@ name = "pypi"
 
 [packages]
 yt-dlp = "*"
-flask = "*"
-flask-cors = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 black = "*"
