@@ -5,7 +5,7 @@ When starting this dev container, all dependencies and tools should be installed
 
 To begin developing, open two terminals. In one, start the backend service by executing:
 ```
-pipenv run python main.py
+pipenv run uvicorn main:app --reload
 ```
 
 In the other, start the frontend app server by executing:
