@@ -36,7 +36,7 @@ def download(url: str, background_tasks: BackgroundTasks):
     background_tasks.add_task(cleanup_tempdir, tempdir)
 
     options = deepcopy(DEFAULT_OPTIONS)
-    options["paths"] = { "home": tempdir.name }
+    options["paths"] = {"home": tempdir.name}
 
     with YoutubeDL(options) as downloader:
         downloader.download(url)
@@ -44,8 +44,11 @@ def download(url: str, background_tasks: BackgroundTasks):
         filepath = downloader.prepare_filename(info_dict).replace("mp4", "mp3")
 
         response = FileResponse(filepath, media_type="audio/mpeg")
-        response.headers['Content-Disposition'] = f'attachment; filename={path.basename(filepath)}'
+        response.headers["Content-Disposition"] = (
+            f"attachment; filename={path.basename(filepath)}"
+        )
         return response
+
 
 def cleanup_tempdir(tempdir: TemporaryDirectory[str]) -> None:
     tempdir.cleanup()
