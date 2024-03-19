@@ -2,7 +2,7 @@ from yt_dlp import YoutubeDL
 from fastapi import FastAPI, BackgroundTasks
 from starlette.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
-import tempfile
+from tempfile import TemporaryDirectory
 from copy import deepcopy
 from os import path
 
@@ -30,14 +30,13 @@ DEFAULT_OPTIONS = {
 
 @app.get("/download")
 def download(url: str, background_tasks: BackgroundTasks):
-    tempdir = tempfile.TemporaryDirectory()
-    tempdir_path = tempdir.name
+    tempdir = TemporaryDirectory()
 
     # when this request is done, clean up the temporary directory and audio track
     background_tasks.add_task(cleanup_tempdir, tempdir)
 
     options = deepcopy(DEFAULT_OPTIONS)
-    options["paths"] = {"home": tempdir_path}
+    options["paths"] = { "home": tempdir.name }
 
     with YoutubeDL(options) as downloader:
         downloader.download(url)
@@ -48,5 +47,5 @@ def download(url: str, background_tasks: BackgroundTasks):
         response.headers['Content-Disposition'] = f'attachment; filename={path.basename(filepath)}'
         return response
 
-def cleanup_tempdir(tempdir):
+def cleanup_tempdir(tempdir: TemporaryDirectory[str]) -> None:
     tempdir.cleanup()
