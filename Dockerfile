@@ -9,7 +9,7 @@ WORKDIR /app/frontend
 
 # Install (and hopefully hit cached) node_modules
 COPY frontend/package*.json ./
-RUN npm ci --production
+RUN npm ci
 
 # Now copy over the source code and build it with Vite
 # The static site files should be located at /app/frontend/dist in the container
